@@ -1,0 +1,13 @@
+[package]
+name = "pbpatch"
+version = "0.0.0"
+description = "Lightweight reflection and patching capabilities for Protocol Buffers (Protobuf)."
+license = "MIT OR Apache-2.0"
+edition = "2024"
+repository = "https://github.com/mdjpoppe/pbpatch-rs"
+documentation = "https://docs.rs/pbpatch"
+keywords = ["protobuf", "protocol-buffers", "patch", "reflection"]
+
+[dependencies]
+derive_more = { version = "2.1.1", features = ["debug", "eq"] }
+ref-cast = "1.0.27"
