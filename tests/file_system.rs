@@ -217,7 +217,7 @@ fn modify() {
 #[test]
 fn iterated_resolution() {
     let mut directory = dummy_directory();
-    let mut metadata = directory
+    let mut metadata_node = directory
         .resolve_mut(&[
             PathComponent::Field { tag: 2 },      // Directory::files
             PathComponent::Repeated { index: 2 }, // Directory::files[2]
@@ -225,10 +225,10 @@ fn iterated_resolution() {
         ])
         .unwrap();
 
-    assert_matches!(metadata, RefMut::Message(MessageRefMut::Singular(_)));
+    assert_matches!(metadata_node, RefMut::Message(MessageRefMut::Singular(_)));
 
     assert_eq!(
-        metadata.resolve_mut(&[
+        metadata_node.resolve_mut(&[
             PathComponent::Field { tag: 1 }, // Metadata::created_at
         ]),
         Ok(RefMut::Scalar(Scalar::Uint64(Cardinality::Singular(
@@ -237,7 +237,29 @@ fn iterated_resolution() {
     );
 
     assert_eq!(
-        metadata.resolve_mut(&[
+        metadata_node.resolve_mut(&[
+            PathComponent::Field { tag: 2 }, // Metadata::modified_at
+        ]),
+        Ok(RefMut::Scalar(Scalar::Uint64(Cardinality::Optional(
+            &mut Some(150)
+        )))),
+    );
+
+    let RefMut::Message(mut metadata_message) = metadata_node else {
+        panic!()
+    };
+
+    assert_eq!(
+        metadata_message.resolve_mut(&[
+            PathComponent::Field { tag: 1 }, // Metadata::created_at
+        ]),
+        Ok(RefMut::Scalar(Scalar::Uint64(Cardinality::Singular(
+            &mut 140
+        )))),
+    );
+
+    assert_eq!(
+        metadata_message.resolve_mut(&[
             PathComponent::Field { tag: 2 }, // Metadata::modified_at
         ]),
         Ok(RefMut::Scalar(Scalar::Uint64(Cardinality::Optional(

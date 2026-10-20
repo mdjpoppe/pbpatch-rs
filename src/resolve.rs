@@ -50,7 +50,11 @@ pub trait ResolveMutOwned {
         Self: 'a;
 }
 
-impl ResolveMut for RefMut<'_> {
+impl<T> ResolveMut for T
+where
+    for<'short> T: ReborrowMut<'short>,
+    for<'short> <T as ReborrowMut<'short>>::ReborrowedMut: ResolveMutOwned,
+{
     fn resolve_mut<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError> {
         self.reborrow_mut().resolve_mut_owned(path)
     }
