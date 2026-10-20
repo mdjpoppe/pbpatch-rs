@@ -40,38 +40,29 @@ pub enum ResolveError {
 }
 
 pub trait ResolveMut {
-    fn resolve_mut<'a>(self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError>
+    fn resolve_mut<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError>;
+}
+
+pub trait ResolveMutOwned {
+    fn resolve_mut_owned<'a>(self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError>
     where
         Self: 'a;
 }
 
-pub trait ResolveMutByRef {
-    fn resolve_mut_by_ref<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError>;
-}
-
-impl<'a, T: ?Sized + 'a + ResolveMutByRef> ResolveMut for &'a mut T {
-    fn resolve_mut<'b>(self, path: PathRef<'_>) -> Result<RefMut<'b>, ResolveError>
-    where
-        'a: 'b,
-    {
-        self.resolve_mut_by_ref(path)
-    }
-}
-
-impl<'s> ResolveMut for RefMut<'s> {
-    fn resolve_mut<'a>(self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError>
+impl<'s> ResolveMutOwned for RefMut<'s> {
+    fn resolve_mut_owned<'a>(self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError>
     where
         's: 'a,
     {
         match self.shorten() {
-            Node::Scalar(scalar) => scalar.resolve_mut(path),
-            Node::Message(message) => message.resolve_mut(path),
+            Node::Scalar(scalar) => scalar.resolve_mut_owned(path),
+            Node::Message(message) => message.resolve_mut_owned(path),
         }
     }
 }
 
-impl<'s> ResolveMut for ScalarRefMut<'s> {
-    fn resolve_mut<'a>(self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError>
+impl<'s> ResolveMutOwned for ScalarRefMut<'s> {
+    fn resolve_mut_owned<'a>(self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError>
     where
         's: 'a,
     {
@@ -126,8 +117,8 @@ fn resolve_generic_scalar_ref_mut<'a, T: 'static>(
     }
 }
 
-impl<'s> ResolveMut for MessageRefMut<'s> {
-    fn resolve_mut<'a>(self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError>
+impl<'s> ResolveMutOwned for MessageRefMut<'s> {
+    fn resolve_mut_owned<'a>(self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError>
     where
         's: 'a,
     {

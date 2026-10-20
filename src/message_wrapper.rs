@@ -10,20 +10,20 @@ use crate::{
             MessageRefMut, OptionalMessageRefMut, RepeatedMessageRefMut, SingularMessageRefMut,
         },
     },
-    resolve::{ResolveError, ResolveMut, ResolveMutByRef},
+    resolve::{ResolveError, ResolveMut},
 };
 
 #[derive(Debug, PartialEq, RefCast)]
 #[repr(transparent)]
 pub struct SingularMessageWrapper<M>(pub M);
 
-impl<M: ResolveMutByRef> ResolveMutByRef for SingularMessageWrapper<M> {
-    fn resolve_mut_by_ref<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError> {
+impl<M: ResolveMut> ResolveMut for SingularMessageWrapper<M> {
+    fn resolve_mut<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError> {
         self.0.resolve_mut(path)
     }
 }
 
-impl<M: 'static + ResolveMutByRef + Debug + PartialEq> SingularMessageRefMut
+impl<M: 'static + ResolveMut + Debug + PartialEq> SingularMessageRefMut
     for SingularMessageWrapper<M>
 {
 }
@@ -32,10 +32,8 @@ impl<M: 'static + ResolveMutByRef + Debug + PartialEq> SingularMessageRefMut
 #[repr(transparent)]
 pub struct OptionalMessageWrapper<M>(pub Option<M>);
 
-impl<M: 'static + ResolveMutByRef + Debug + PartialEq> ResolveMutByRef
-    for OptionalMessageWrapper<M>
-{
-    fn resolve_mut_by_ref<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError> {
+impl<M: 'static + ResolveMut + Debug + PartialEq> ResolveMut for OptionalMessageWrapper<M> {
+    fn resolve_mut<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError> {
         if path.is_empty() {
             return Ok(RefMut::Message(MessageRefMut::Optional(self)));
         }
@@ -47,7 +45,7 @@ impl<M: 'static + ResolveMutByRef + Debug + PartialEq> ResolveMutByRef
     }
 }
 
-impl<M: 'static + ResolveMutByRef + Debug + PartialEq> OptionalMessageRefMut
+impl<M: 'static + ResolveMut + Debug + PartialEq> OptionalMessageRefMut
     for OptionalMessageWrapper<M>
 {
 }
@@ -56,10 +54,8 @@ impl<M: 'static + ResolveMutByRef + Debug + PartialEq> OptionalMessageRefMut
 #[repr(transparent)]
 pub struct RepeatedMessageWrapper<M>(pub Vec<M>);
 
-impl<M: 'static + ResolveMutByRef + Debug + PartialEq> ResolveMutByRef
-    for RepeatedMessageWrapper<M>
-{
-    fn resolve_mut_by_ref<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError> {
+impl<M: 'static + ResolveMut + Debug + PartialEq> ResolveMut for RepeatedMessageWrapper<M> {
+    fn resolve_mut<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError> {
         let [head, tail @ ..] = path else {
             return Ok(RefMut::Message(MessageRefMut::Repeated(
                 RepeatedMessageWrapper::ref_cast_mut(&mut self.0),
@@ -80,7 +76,7 @@ impl<M: 'static + ResolveMutByRef + Debug + PartialEq> ResolveMutByRef
     }
 }
 
-impl<M: 'static + ResolveMutByRef + Debug + PartialEq> RepeatedMessageRefMut
+impl<M: 'static + ResolveMut + Debug + PartialEq> RepeatedMessageRefMut
     for RepeatedMessageWrapper<M>
 {
 }

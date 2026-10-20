@@ -3,7 +3,7 @@ use std::{fmt::Debug, marker::PhantomData};
 use crate::{
     dyn_partial_eq::DynPartialEq,
     node::{Cardinality, CardinalityFamily},
-    resolve::ResolveMutByRef,
+    resolve::ResolveMut,
     shorten::generate_shorten,
 };
 
@@ -31,8 +31,8 @@ impl<'a> CardinalityFamily for MessageRefMutCardinalityFamily<'a> {
     type RepeatedType = &'a mut (dyn RepeatedMessageRefMut + 'static);
 }
 
-pub trait SingularMessageRefMut: ResolveMutByRef + DynPartialEq + Debug {}
+pub trait SingularMessageRefMut: ResolveMut + DynPartialEq + Debug {}
 
-pub trait OptionalMessageRefMut: ResolveMutByRef + DynPartialEq + Debug {}
+pub trait OptionalMessageRefMut: ResolveMut + DynPartialEq + Debug {}
 
-pub trait RepeatedMessageRefMut: ResolveMutByRef + DynPartialEq + Debug {}
+pub trait RepeatedMessageRefMut: ResolveMut + DynPartialEq + Debug {}

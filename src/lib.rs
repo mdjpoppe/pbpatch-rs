@@ -22,7 +22,7 @@
 //! # use pbpatch::node::{Cardinality, Scalar};
 //! # use pbpatch::path::{Path, PathComponent, PathRef};
 //! # use pbpatch::reference::RefMut;
-//! # use pbpatch::resolve::{ResolveError, ResolveMut, ResolveMutByRef};
+//! # use pbpatch::resolve::{ResolveError, ResolveMut};
 //! #
 //! # #[derive(Default)]
 //! struct Metadata {
@@ -43,8 +43,8 @@
 //! }
 //!
 //! // hidden `ResolveMut` impls
-//! # impl ResolveMutByRef for Directory {
-//! #     fn resolve_mut_by_ref<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError> {
+//! # impl ResolveMut for Directory {
+//! #     fn resolve_mut<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError> {
 //! #         // hard-coded result for this example
 //! #         Ok(RefMut::Scalar(Scalar::Uint64(Cardinality::Singular(
 //! #             &mut self.files[0].size

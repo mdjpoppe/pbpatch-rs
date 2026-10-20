@@ -6,7 +6,7 @@ use pbpatch::{
     path::{PathComponent, PathRef},
     ref_cast::RefCast,
     reference::{RefMut, message::MessageRefMut},
-    resolve::{ResolveError, ResolveMut, ResolveMutByRef},
+    resolve::{ResolveError, ResolveMut, ResolveMutOwned},
 };
 
 #[derive(Debug, Eq, PartialEq)]
@@ -39,8 +39,8 @@ struct Directory {
     files: Vec<File>,
 }
 
-impl ResolveMutByRef for Metadata {
-    fn resolve_mut_by_ref<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError> {
+impl ResolveMut for Metadata {
+    fn resolve_mut<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError> {
         let [head, tail @ ..] = path else {
             return Ok(RefMut::Message(MessageRefMut::Singular(
                 SingularMessageWrapper::ref_cast_mut(self),
@@ -53,16 +53,16 @@ impl ResolveMutByRef for Metadata {
 
         match tag {
             1 => RefMut::Scalar(Scalar::Uint64(Cardinality::Singular(&mut self.created_at)))
-                .resolve_mut(tail),
+                .resolve_mut_owned(tail),
             2 => RefMut::Scalar(Scalar::Uint64(Cardinality::Optional(&mut self.modified_at)))
-                .resolve_mut(tail),
+                .resolve_mut_owned(tail),
             _ => Err(ResolveError::UnknownField),
         }
     }
 }
 
-impl ResolveMutByRef for File {
-    fn resolve_mut_by_ref<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError> {
+impl ResolveMut for File {
+    fn resolve_mut<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError> {
         let [head, tail @ ..] = path else {
             return Ok(RefMut::Message(MessageRefMut::Singular(
                 SingularMessageWrapper::ref_cast_mut(self),
@@ -76,16 +76,16 @@ impl ResolveMutByRef for File {
         match tag {
             1 => self.metadata.resolve_mut(tail),
             2 => RefMut::Scalar(Scalar::Uint64(Cardinality::Singular(&mut self.size)))
-                .resolve_mut(tail),
+                .resolve_mut_owned(tail),
             3 => RefMut::Scalar(Scalar::Uint64(Cardinality::Repeated(&mut self.blocks)))
-                .resolve_mut(tail),
+                .resolve_mut_owned(tail),
             _ => Err(ResolveError::UnknownField),
         }
     }
 }
 
-impl ResolveMutByRef for Directory {
-    fn resolve_mut_by_ref<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError> {
+impl ResolveMut for Directory {
+    fn resolve_mut<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError> {
         let [head, tail @ ..] = path else {
             return Ok(RefMut::Message(MessageRefMut::Singular(
                 SingularMessageWrapper::ref_cast_mut(self),
