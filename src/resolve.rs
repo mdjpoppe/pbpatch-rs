@@ -2,6 +2,7 @@ use crate::{
     match_variants::match_variants,
     node::Node,
     path::{PathComponent, PathRef},
+    reborrow::ReborrowMut,
     reference::{
         RefMut,
         message::MessageRefMut,
@@ -47,6 +48,12 @@ pub trait ResolveMutOwned {
     fn resolve_mut_owned<'a>(self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError>
     where
         Self: 'a;
+}
+
+impl ResolveMut for RefMut<'_> {
+    fn resolve_mut<'a>(&'a mut self, path: PathRef<'_>) -> Result<RefMut<'a>, ResolveError> {
+        self.reborrow_mut().resolve_mut_owned(path)
+    }
 }
 
 impl<'s> ResolveMutOwned for RefMut<'s> {

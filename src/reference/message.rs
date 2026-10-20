@@ -3,6 +3,7 @@ use std::{fmt::Debug, marker::PhantomData};
 use crate::{
     dyn_partial_eq::DynPartialEq,
     node::{Cardinality, CardinalityFamily},
+    reborrow::generate_reborrow_mut,
     resolve::ResolveMut,
     shorten::generate_shorten,
 };
@@ -10,6 +11,7 @@ use crate::{
 pub type MessageRefMut<'a> = Cardinality<MessageRefMutCardinalityFamily<'a>>;
 
 generate_shorten!(MessageRefMut::{Singular, Optional, Repeated});
+generate_reborrow_mut!(MessageRefMut::{Singular, Optional, Repeated});
 
 impl<'a> PartialEq for MessageRefMut<'a> {
     fn eq(&self, other: &Self) -> bool {

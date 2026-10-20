@@ -5,6 +5,7 @@ use core::marker::PhantomData;
 
 use crate::{
     node::{Node, NodeFamily},
+    reborrow::generate_reborrow_mut,
     reference::{message::MessageRefMut, scalar::ScalarRefMutFamily},
     shorten::generate_shorten,
 };
@@ -12,6 +13,7 @@ use crate::{
 pub type RefMut<'a> = Node<RefMutNodeFamily<'a>>;
 
 generate_shorten!(RefMut::{Scalar, Message});
+generate_reborrow_mut!(RefMut::{Scalar, Message});
 
 pub struct RefMutNodeFamily<'a>(PhantomData<&'a ()>);
 

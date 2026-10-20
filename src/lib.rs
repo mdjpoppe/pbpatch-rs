@@ -73,6 +73,7 @@
 pub mod message_wrapper;
 pub mod node;
 pub mod path;
+pub mod reborrow;
 pub mod reference;
 pub mod resolve;
 
